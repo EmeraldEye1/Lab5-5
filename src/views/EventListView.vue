@@ -6,7 +6,6 @@
       :key="event.id"
       :event="event"
     ></EventCard>
-
     <div class="pagination">
       <router-link
         id="page-prev"
@@ -14,29 +13,35 @@
         rel="prev"
         v-if="page != 1"
       >
-        Prev Page
-      </router-link>
-
+        Prev Page</router-link
+      >
       <router-link
         id="page-next"
         :to="{ name: 'EventList', query: { page: page + 1 } }"
         rel="next"
         v-if="hasNextPage"
       >
-        Next Page
-      </router-link>
+        Next Page</router-link
+      >
     </div>
+    <router-link :to="{ name: 'EventList', query: { morepage: morepage + 1 } }">
+      Add data</router-link
+    >
   </div>
 </template>
-
 <script>
 // @ is an alias to /src
 import EventCard from '@/components/EventCard.vue'
 import EventService from '@/services/EventService.js'
+import { watchEffect } from '@vue/runtime-core'
 export default {
   name: 'EventListView',
   props: {
     page: {
+      type: Number,
+      required: true
+    },
+    morepage: {
       type: Number,
       required: true
     }
@@ -47,7 +52,27 @@ export default {
   data() {
     return {
       events: null,
-      totalEvents: 0
+      totalEvents: 0 // <--- Added this to store totalEvents
+    }
+  },
+  created() {
+    watchEffect(() => {
+      EventService.getEvents(this.morepage, this.page)
+        .then((response) => {
+          this.events = response.data
+          this.totalEvents = response.headers['x-total-count'] // <--- Store it
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    })
+  },
+  computed: {
+    hasNextPage() {
+      //First, calculate total pages
+      let totalPages = Math.ceil(this.totalEvents / 2) // 2 is events per pages.
+      //Then check to see if the current page is less than the total pages.
+      return this.page < totalPages
     }
   },
   /* eslint-disable-next-line no-unused-vars */
@@ -73,12 +98,6 @@ export default {
       .catch(() => {
         next({ name: 'NetworkError' })
       })
-  },
-  computed: {
-    hasNextPage() {
-      let totalPages = Math.ceil(this.totalEvents / 3)
-      return this.page < totalPages
-    }
   }
 }
 </script>
