@@ -3,20 +3,21 @@
     {{ GStore.flashMessage }}
   </div>
   <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link :to="{ name: 'EventList' }">Home</router-link> |
+    <router-link :to="{ name: 'about' }">About</router-link>
   </nav>
   <router-view />
 </template>
 <script>
 export default {
-  inject: ['GStore']
-}
+  inject: ["GStore"],
+};
 </script>
+
 <style>
 @keyframes yellowfade {
   from {
-    background: yellow;
+    background: rgb(94, 204, 136);
   }
   to {
     background: transparent;
@@ -24,8 +25,9 @@ export default {
 }
 #flashMessage {
   animation-name: yellowfade;
-  animation-duration: 3s;
+  animation-duration: 5s;
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
